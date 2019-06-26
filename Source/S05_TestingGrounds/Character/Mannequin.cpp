@@ -58,6 +58,12 @@ void AMannequin::BeginPlay()
 	}
 }
 
+void AMannequin::Destroyed()
+{
+	Super::Destroyed();
+	Gun->Destroy();
+}
+
 // Called every frame
 void AMannequin::Tick(float DeltaTime)
 {
