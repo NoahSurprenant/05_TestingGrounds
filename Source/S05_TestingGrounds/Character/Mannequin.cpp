@@ -58,6 +58,23 @@ void AMannequin::BeginPlay()
 	}
 }
 
+//void AMannequin::EndPlay(const EEndPlayReason::Type EndPlayReason)
+//{
+//	if (Gun != nullptr)
+//	{
+//		Gun->Destroy();
+//	}
+//}
+
+void AMannequin::Destroyed()
+{
+	Super::Destroyed();
+	if (Gun != nullptr)
+	{
+		Gun->Destroy();
+	}
+}
+
 // Called every frame
 void AMannequin::Tick(float DeltaTime)
 {
