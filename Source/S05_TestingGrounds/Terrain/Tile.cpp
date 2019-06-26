@@ -40,6 +40,7 @@ void ATile::PositionNavMeshBoundsVolume()
 	UE_LOG(LogTemp, Warning, TEXT("[%s] Checked out: {%s}"), *GetName(), *NavMeshBoundsVolume->GetName());
 	NavMeshBoundsVolume->SetActorLocation(GetActorLocation() + NavigationBoundsOffset);
 	FNavigationSystem::Build(*GetWorld());
+	//UNavigationSystemV1::GetNavigationSystem(GetWorld())->Build();
 }
 
 template<class T>
