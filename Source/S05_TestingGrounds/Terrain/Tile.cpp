@@ -30,7 +30,7 @@ void ATile::SetPool(UActorPool* InPool)
 
 void ATile::PositionNavMeshBoundsVolume()
 {
-	AActor* NavMeshBoundsVolume = Pool->Checkout();
+	NavMeshBoundsVolume = Pool->Checkout();
 	if (NavMeshBoundsVolume == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[%s] Not enough actors in pool."), *GetName());
