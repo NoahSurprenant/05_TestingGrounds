@@ -30,7 +30,7 @@ void ATile::SetPool(UActorPool* InPool)
 
 void ATile::PositionNavMeshBoundsVolume()
 {
-	NavMeshBoundsVolume = Pool->Checkout();
+	AActor* NavMeshBoundsVolume = Pool->Checkout();
 	if (NavMeshBoundsVolume == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[%s] Not enough actors in pool."), *GetName());
@@ -39,10 +39,7 @@ void ATile::PositionNavMeshBoundsVolume()
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[%s] Checked out: {%s}"), *GetName(), *NavMeshBoundsVolume->GetName());
 	NavMeshBoundsVolume->SetActorLocation(GetActorLocation() + NavigationBoundsOffset);
-	UNavigationSystemV1::GetNavigationSystem(GetWorld())->Build();
-
-	// Old code back even though lecture said this was the correct way in the annotation?
-	//FNavigationSystem::Build(*GetWorld());
+	FNavigationSystem::Build(*GetWorld());
 }
 
 template<class T>
@@ -97,7 +94,6 @@ void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, const FSpawnPosition& SpawnP
 		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 		Spawned->SetActorRotation(FRotator(0, SpawnPosition.Rotation, 0));
 		Spawned->SetActorScale3D(FVector(SpawnPosition.Scale));
-		SpawnedActors.Add(Spawned);
 	}
 }
 
@@ -105,14 +101,10 @@ void ATile::PlaceActor(TSubclassOf<APawn> ToSpawn, FSpawnPosition SpawnPosition)
 {
 	FRotator Rotation = FRotator(0, SpawnPosition.Rotation, 0);
 	APawn* Spawned = GetWorld()->SpawnActor<APawn>(ToSpawn, SpawnPosition.Location, Rotation);
-	//APawn* Spawned = GetWorld()->SpawnActor<APawn>(ToSpawn); // May delete
 	if (Spawned == nullptr) { return; }
-	//Spawned->SetActorRelativeLocation(SpawnPosition.Location); // May delete
 	Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-	//Spawned->SetActorRotation(FRotator(0, SpawnPosition.Rotation, 0)); // May delete
 	Spawned->SpawnDefaultController();
 	Spawned->Tags.Add(FName("Enemy"));
-	SpawnedActors.Add(Spawned);
 }
 
 // Called when the game starts or when spawned
@@ -127,15 +119,6 @@ void ATile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (Pool != nullptr && NavMeshBoundsVolume != nullptr)
 	{
 		Pool->Return(NavMeshBoundsVolume);
-	}
-}
-
-void ATile::Destroyed()
-{
-	Super::Destroyed();
-	for (AActor* Actor : SpawnedActors)
-	{
-		Actor->Destroy();
 	}
 }
 
