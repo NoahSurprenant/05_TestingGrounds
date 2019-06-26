@@ -94,6 +94,7 @@ void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, const FSpawnPosition& SpawnP
 		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 		Spawned->SetActorRotation(FRotator(0, SpawnPosition.Rotation, 0));
 		Spawned->SetActorScale3D(FVector(SpawnPosition.Scale));
+		SpawnedActors.Add(Spawned);
 	}
 }
 
@@ -105,6 +106,7 @@ void ATile::PlaceActor(TSubclassOf<APawn> ToSpawn, FSpawnPosition SpawnPosition)
 	Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	Spawned->SpawnDefaultController();
 	Spawned->Tags.Add(FName("Enemy"));
+	SpawnedActors.Add(Spawned);
 }
 
 // Called when the game starts or when spawned
@@ -120,6 +122,16 @@ void ATile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		Pool->Return(NavMeshBoundsVolume);
 	}
+}
+
+void ATile::Destroyed()
+{
+	Super::Destroyed();
+	for (AActor* Actor : SpawnedActors)
+	{
+		Actor->Destroy();
+	}
+	Destroy();
 }
 
 // Called every frame

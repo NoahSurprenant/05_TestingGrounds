@@ -37,6 +37,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	UFUNCTION(BlueprintCallable, Category = "Destroy")
+	virtual void Destroyed() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Navigation")
 	FVector NavigationBoundsOffset;
@@ -70,4 +72,6 @@ private:
 	UActorPool* Pool;
 
 	AActor* NavMeshBoundsVolume;
+
+	TArray<AActor*> SpawnedActors;
 };
