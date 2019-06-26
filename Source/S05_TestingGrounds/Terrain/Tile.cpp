@@ -72,7 +72,7 @@ void ATile::PlaceAIPawns(TSubclassOf<APawn> ToSpawn, int MinSpawn, int MaxSpawn,
 bool ATile::FindEmptyLocation(FVector& OutLocation, float Radius)
 {
 	FBox Bounds(MinExtent, MaxExtent);
-	const int MAX_ATTEMPTS = 100;
+	const int MAX_ATTEMPTS = 5; // Old number 100 causes hitching
 	for (size_t i = 0; i < MAX_ATTEMPTS; i++)
 	{
 		FVector CandidatePoint = FMath::RandPointInBox(Bounds);
@@ -88,7 +88,11 @@ bool ATile::FindEmptyLocation(FVector& OutLocation, float Radius)
 void ATile::PlaceActor(TSubclassOf<AActor> ToSpawn, const FSpawnPosition& SpawnPosition)
 {
 	AActor* Spawned = GetWorld()->SpawnActor<AActor>(ToSpawn);
-	if (Spawned)
+	if (Spawned == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] Failed to spawn AActor"), *GetName());
+	}
+	else
 	{
 		Spawned->SetActorRelativeLocation(SpawnPosition.Location);
 		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
@@ -102,11 +106,17 @@ void ATile::PlaceActor(TSubclassOf<APawn> ToSpawn, FSpawnPosition SpawnPosition)
 {
 	FRotator Rotation = FRotator(0, SpawnPosition.Rotation, 0);
 	APawn* Spawned = GetWorld()->SpawnActor<APawn>(ToSpawn, SpawnPosition.Location, Rotation);
-	if (Spawned == nullptr) { return; }
-	Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-	Spawned->SpawnDefaultController();
-	Spawned->Tags.Add(FName("Enemy"));
-	SpawnedActors.Add(Spawned);
+	if (Spawned == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[%s] Failed to spawn AIPawn"), *GetName());
+	}
+	else
+	{
+		Spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		Spawned->SpawnDefaultController();
+		Spawned->Tags.Add(FName("Enemy"));
+		SpawnedActors.Add(Spawned);
+	}
 }
 
 // Called when the game starts or when spawned
